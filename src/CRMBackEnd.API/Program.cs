@@ -60,16 +60,16 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Support deployment in virtual directory
+app.UsePathBase("/CRMBackend");
+
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CRM Backend API v1");
-        c.RoutePrefix = "swagger";
-    });
-}
+    c.SwaggerEndpoint("/CRMBackend/swagger/v1/swagger.json", "CRM Backend API v1");
+    c.RoutePrefix = "swagger";
+});
 
 // Global exception handling middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
