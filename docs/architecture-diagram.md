@@ -1,32 +1,32 @@
 ```mermaid
 graph TD
-    CLIENT_REQ["🌐 <b>HTTP Request</b><br/>Bearer Token"]
+    CLIENT_REQ["🌐 HTTP Request with Bearer Token"]
 
-    subgraph API["🎯 API Layer (CRMBackEnd.API)"]
+    subgraph API["                    🎯 API Layer (CRMBackEnd.API)                    "]
         CTRL["<b>CustomerController</b><br/>GET /api/customer/info/{id}<br/>🎮 REST Endpoint"]
         AUTH["<b>BearerTokenAuthenticationHandler</b><br/>Token: '123'<br/>🔐 Authentication"]
         MID["<b>ExceptionHandlingMiddleware</b><br/>Global Error Handler<br/>⚠️ Error Handling"]
         SWAGGER["<b>Swagger UI</b><br/>/swagger<br/>📚 API Documentation"]
     end
 
-    subgraph APP["⚙️ Application Layer (CRMBackEnd.Application)"]
+    subgraph APP["              ⚙️ Application Layer (CRMBackEnd.Application)              "]
         SVC["<b>CustomerService</b><br/>Business Logic<br/>🔄 Service"]
         MAP["<b>AutoMapper</b><br/>MappingProfile<br/>🗺️ Object Mapping"]
         DTO["<b>DTOs</b><br/>CustomerInfoResponse<br/>📦 Data Transfer"]
     end
 
-    subgraph DOMAIN["🎨 Domain Layer (CRMBackEnd.Domain)"]
+    subgraph DOMAIN["                  🎨 Domain Layer (CRMBackEnd.Domain)                  "]
         INT["<b>Interfaces</b><br/>ICRMServiceClient<br/>📝 Contracts"]
         ENT["<b>Customer Entity</b><br/>Domain Model<br/>📋 Core Model"]
     end
 
-    subgraph INFRA["🏗️ Infrastructure Layer (CRMBackEnd.Infrastructure)"]
+    subgraph INFRA["           🏗️ Infrastructure Layer (CRMBackEnd.Infrastructure)           "]
         CLIENT["<b>CRMServiceClient</b><br/>HTTP Client Wrapper<br/>🔌 Integration"]
         HANDLER["<b>BearerTokenHandler</b><br/>Token Injection<br/>🎫 DelegatingHandler"]
         CONFIG["<b>Configuration</b><br/>ExternalCRMServiceSettings<br/>⚙️ Settings"]
     end
 
-    subgraph External["🌐 External Services"]
+    subgraph External["                         🌐 External Services                         "]
         CRM["<b>External CRM API</b><br/>http://localhost/CRMApi<br/>📡 REST API"]
     end
 
