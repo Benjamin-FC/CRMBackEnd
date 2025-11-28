@@ -20,8 +20,8 @@ public class CRMServiceClient : ICRMServiceClient
     {
         try
         {
-            // Call external CRM API endpoint
-            var response = await _httpClient.GetAsync($"/api/v1/ClientData/{id}");
+            // Call external CRM API endpoint (no leading slash to preserve base URL path)
+            var response = await _httpClient.GetAsync($"api/v1/ClientData/{id}");
 
             // Ensure success status code
             response.EnsureSuccessStatusCode();

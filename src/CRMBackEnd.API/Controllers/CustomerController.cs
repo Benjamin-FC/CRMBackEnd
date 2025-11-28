@@ -60,7 +60,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving customer info for ID: {CustomerId}", id);
-            return StatusCode(500, new { error = "An error occurred while retrieving customer information" });
+            return StatusCode(500, new { error = "An error occurred while retrieving customer information", details = ex.Message, innerException = ex.InnerException?.Message });
         }
     }
 }

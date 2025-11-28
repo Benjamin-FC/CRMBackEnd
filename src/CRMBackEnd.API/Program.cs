@@ -9,8 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers();
 
-// Add AutoMapper
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+// Add AutoMapper with explicit assembly registration
+builder.Services.AddAutoMapper(typeof(CRMBackEnd.Application.Mappings.MappingProfile));
 
 // Add Infrastructure services (HttpClient, CRM Service, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);

@@ -26,7 +26,7 @@ public static class DependencyInjection
             configuration.GetSection("ExternalCRMService"));
 
         // Register HttpClient with BearerTokenHandler for external CRM service
-        services.AddTransient(sp => new BearerTokenHandler(crmSettings.BearerToken));
+        services.AddTransient<BearerTokenHandler>(sp => new BearerTokenHandler(crmSettings.BearerToken));
 
         services.AddHttpClient<ICRMServiceClient, CRMServiceClient>(client =>
         {
