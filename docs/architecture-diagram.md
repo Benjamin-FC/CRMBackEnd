@@ -1,71 +1,65 @@
 ```mermaid
-graph TB
+graph TD
     CLIENT_REQ["🌐 <b>HTTP Request</b><br/>Bearer Token"]
 
-    subgraph External["🌐 External Services"]
-        CRM["<b>External CRM API</b><br/>http://localhost/CRMApi<br/>📡 REST API"]
-    end
-
-    subgraph API["🎯 API Layer<br/>(CRMBackEnd.API)"]
+    subgraph API["🎯 API Layer (CRMBackEnd.API)"]
         CTRL["<b>CustomerController</b><br/>GET /api/customer/info/{id}<br/>🎮 REST Endpoint"]
         AUTH["<b>BearerTokenAuthenticationHandler</b><br/>Token: '123'<br/>🔐 Authentication"]
         MID["<b>ExceptionHandlingMiddleware</b><br/>Global Error Handler<br/>⚠️ Error Handling"]
         SWAGGER["<b>Swagger UI</b><br/>/swagger<br/>📚 API Documentation"]
     end
 
-    subgraph APP["⚙️ Application Layer<br/>(CRMBackEnd.Application)"]
+    subgraph APP["⚙️ Application Layer (CRMBackEnd.Application)"]
         SVC["<b>CustomerService</b><br/>Business Logic<br/>🔄 Service"]
-        DTO["<b>DTOs</b><br/>CustomerInfoResponse<br/>📦 Data Transfer"]
         MAP["<b>AutoMapper</b><br/>MappingProfile<br/>🗺️ Object Mapping"]
+        DTO["<b>DTOs</b><br/>CustomerInfoResponse<br/>📦 Data Transfer"]
     end
 
-    subgraph INFRA["🏗️ Infrastructure Layer<br/>(CRMBackEnd.Infrastructure)"]
+    subgraph DOMAIN["🎨 Domain Layer (CRMBackEnd.Domain)"]
+        INT["<b>Interfaces</b><br/>ICRMServiceClient<br/>📝 Contracts"]
+        ENT["<b>Customer Entity</b><br/>Domain Model<br/>📋 Core Model"]
+    end
+
+    subgraph INFRA["🏗️ Infrastructure Layer (CRMBackEnd.Infrastructure)"]
         CLIENT["<b>CRMServiceClient</b><br/>HTTP Client Wrapper<br/>🔌 Integration"]
         HANDLER["<b>BearerTokenHandler</b><br/>Token Injection<br/>🎫 DelegatingHandler"]
         CONFIG["<b>Configuration</b><br/>ExternalCRMServiceSettings<br/>⚙️ Settings"]
     end
 
-    subgraph DOMAIN["🎨 Domain Layer<br/>(CRMBackEnd.Domain)"]
-        ENT["<b>Customer Entity</b><br/>Domain Model<br/>📋 Core Model"]
-        INT["<b>Interfaces</b><br/>ICRMServiceClient<br/>📝 Contracts"]
+    subgraph External["🌐 External Services"]
+        CRM["<b>External CRM API</b><br/>http://localhost/CRMApi<br/>📡 REST API"]
     end
 
-    %% External connections
-    CLIENT_REQ -->|"Incoming Request"| CTRL
-    CTRL -->|"Validates"| AUTH
-    CTRL -->|"Protected by"| MID
+    %% Request flow top to bottom
+    CLIENT_REQ --> CTRL
+    CTRL --> AUTH
+    CTRL --> MID
+    CTRL --> SVC
     
-    %% API to Application
-    CTRL -->|"Calls"| SVC
-    SVC -->|"Uses"| MAP
-    SVC -->|"Returns"| DTO
+    SVC --> MAP
+    SVC --> INT
     
-    %% Application to Infrastructure
-    SVC -->|"Depends on"| INT
-    CLIENT -->|"Implements"| INT
+    MAP --> ENT
+    MAP --> DTO
     
-    %% Infrastructure to External
-    CLIENT -->|"HTTP GET<br/>/api/v1/ClientData/{id}"| CRM
-    CLIENT -->|"Uses"| HANDLER
-    HANDLER -->|"Injects Token"| CRM
-    CLIENT -->|"Configured by"| CONFIG
+    INT -.->|"implemented by"| CLIENT
     
-    %% Mapping
-    MAP -->|"Maps"| ENT
-    MAP -->|"To"| DTO
+    CLIENT --> CONFIG
+    CLIENT --> HANDLER
+    CLIENT --> CRM
 
     %% Styling
     classDef apiStyle fill:#4A90E2,stroke:#2E5C8A,stroke-width:3px,color:#fff
     classDef appStyle fill:#7B68EE,stroke:#5B48CE,stroke-width:3px,color:#fff
-    classDef infraStyle fill:#50C878,stroke:#30A858,stroke-width:3px,color:#fff
     classDef domainStyle fill:#FF6B6B,stroke:#DF4B4B,stroke-width:3px,color:#fff
+    classDef infraStyle fill:#50C878,stroke:#30A858,stroke-width:3px,color:#fff
     classDef externalStyle fill:#95A5A6,stroke:#75858A,stroke-width:3px,color:#fff
     classDef clientStyle fill:#ECF0F1,stroke:#BDC3C7,stroke-width:2px,color:#2C3E50
 
     class CTRL,AUTH,MID,SWAGGER apiStyle
     class SVC,DTO,MAP appStyle
+    class INT,ENT domainStyle
     class CLIENT,HANDLER,CONFIG infraStyle
-    class ENT,INT domainStyle
     class CRM externalStyle
     class CLIENT_REQ clientStyle
 ```
