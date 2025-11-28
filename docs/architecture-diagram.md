@@ -1,11 +1,9 @@
 ```mermaid
 graph TB
+    CLIENT_REQ["🌐 <b>HTTP Request</b><br/>Bearer Token"]
+
     subgraph External["🌐 External Services"]
         CRM["<b>External CRM API</b><br/>http://localhost/CRMApi<br/>📡 REST API"]
-    end
-
-    subgraph IIS["🖥️ IIS Deployment"]
-        IISAPP["<b>IIS Application</b><br/>http://localhost/CRMBackend<br/>🌍 Production"]
     end
 
     subgraph API["🎯 API Layer<br/>(CRMBackEnd.API)"]
@@ -33,7 +31,7 @@ graph TB
     end
 
     %% External connections
-    IISAPP -->|"HTTP Request<br/>Bearer Token"| CTRL
+    CLIENT_REQ -->|"Incoming Request"| CTRL
     CTRL -->|"Validates"| AUTH
     CTRL -->|"Protected by"| MID
     
@@ -62,14 +60,14 @@ graph TB
     classDef infraStyle fill:#50C878,stroke:#30A858,stroke-width:3px,color:#fff
     classDef domainStyle fill:#FF6B6B,stroke:#DF4B4B,stroke-width:3px,color:#fff
     classDef externalStyle fill:#95A5A6,stroke:#75858A,stroke-width:3px,color:#fff
-    classDef iisStyle fill:#34495E,stroke:#24394E,stroke-width:3px,color:#fff
+    classDef clientStyle fill:#ECF0F1,stroke:#BDC3C7,stroke-width:2px,color:#2C3E50
 
     class CTRL,AUTH,MID,SWAGGER apiStyle
     class SVC,DTO,MAP appStyle
     class CLIENT,HANDLER,CONFIG infraStyle
     class ENT,INT domainStyle
     class CRM externalStyle
-    class IISAPP iisStyle
+    class CLIENT_REQ clientStyle
 ```
 
 ## Architecture Overview
@@ -98,7 +96,7 @@ graph TB
 
 ### 🔄 Request Flow
 
-1. **Client Request** → IIS Application receives HTTP request with Bearer token
+1. **HTTP Request** → Incoming request with Bearer token
 2. **Authentication** → Token validated against configured value ("123")
 3. **Controller** → Parses customer ID from route
 4. **Service Layer** → Orchestrates business logic
