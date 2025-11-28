@@ -32,11 +32,6 @@ graph TB
         INT["<b>Interfaces</b><br/>ICRMServiceClient<br/>📝 Contracts"]
     end
 
-    subgraph TEST["🧪 Test Layer<br/>(CRMBackEnd.Tests)"]
-        UNIT["<b>Unit Tests</b><br/>Services, Mappings<br/>✅ Isolated Testing"]
-        INTTEST["<b>Integration Tests</b><br/>Full API Testing<br/>🔗 End-to-End"]
-    end
-
     %% External connections
     IISAPP -->|"HTTP Request<br/>Bearer Token"| CTRL
     CTRL -->|"Validates"| AUTH
@@ -60,19 +55,12 @@ graph TB
     %% Mapping
     MAP -->|"Maps"| ENT
     MAP -->|"To"| DTO
-    
-    %% Testing
-    UNIT -.->|"Tests"| SVC
-    UNIT -.->|"Tests"| MAP
-    UNIT -.->|"Tests"| CLIENT
-    INTTEST -.->|"Tests"| CTRL
 
     %% Styling
     classDef apiStyle fill:#4A90E2,stroke:#2E5C8A,stroke-width:3px,color:#fff
     classDef appStyle fill:#7B68EE,stroke:#5B48CE,stroke-width:3px,color:#fff
     classDef infraStyle fill:#50C878,stroke:#30A858,stroke-width:3px,color:#fff
     classDef domainStyle fill:#FF6B6B,stroke:#DF4B4B,stroke-width:3px,color:#fff
-    classDef testStyle fill:#FFA500,stroke:#DF8500,stroke-width:3px,color:#fff
     classDef externalStyle fill:#95A5A6,stroke:#75858A,stroke-width:3px,color:#fff
     classDef iisStyle fill:#34495E,stroke:#24394E,stroke-width:3px,color:#fff
 
@@ -80,7 +68,6 @@ graph TB
     class SVC,DTO,MAP appStyle
     class CLIENT,HANDLER,CONFIG infraStyle
     class ENT,INT domainStyle
-    class UNIT,INTTEST testStyle
     class CRM externalStyle
     class IISAPP iisStyle
 ```
@@ -108,10 +95,6 @@ graph TB
 **Domain Layer** (Red) - Core business entities and rules
 - Entities represent core domain models
 - Interfaces define contracts for implementations
-
-**Test Layer** (Orange) - Quality assurance
-- Unit tests verify isolated components
-- Integration tests validate end-to-end flows
 
 ### 🔄 Request Flow
 
