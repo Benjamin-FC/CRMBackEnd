@@ -100,6 +100,13 @@ artifacts/
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 
+# NuGet auto-generated files
+*.nuget.dgspec.json
+*.nuget.g.props
+*.nuget.g.targets
+project.assets.json
+project.nuget.cache
+
 # NuGet Packages
 *.nupkg
 # The packages folder can be ignored because of Package Restore
