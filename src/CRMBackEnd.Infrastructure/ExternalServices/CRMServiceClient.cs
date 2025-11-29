@@ -16,9 +16,14 @@ public class CRMServiceClient : ICRMServiceClient
     public CRMServiceClient(HttpClient httpClient, ILogger<CRMServiceClient> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-      
-
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        
+        // Set Bearer token if not already present
+        if (_httpClient.DefaultRequestHeaders.Authorization == null)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "123");
+        }
     }
 
     public async Task<Customer> GetClientDataAsync(int id)
