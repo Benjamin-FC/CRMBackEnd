@@ -4,6 +4,7 @@ using CRMBackEnd.Application.Services;
 using CRMBackEnd.Domain.Entities;
 using CRMBackEnd.Domain.Interfaces;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -13,13 +14,15 @@ public class CustomerServiceTests
 {
     private readonly Mock<ICRMServiceClient> _mockCrmClient;
     private readonly Mock<IMapper> _mockMapper;
+    private readonly Mock<ILogger<CustomerService>> _mockLogger;
     private readonly CustomerService _sut;
 
     public CustomerServiceTests()
     {
         _mockCrmClient = new Mock<ICRMServiceClient>();
         _mockMapper = new Mock<IMapper>();
-        _sut = new CustomerService(_mockCrmClient.Object, _mockMapper.Object);
+        _mockLogger = new Mock<ILogger<CustomerService>>();
+        _sut = new CustomerService(_mockCrmClient.Object, _mockMapper.Object, _mockLogger.Object);
     }
 
     [Fact]

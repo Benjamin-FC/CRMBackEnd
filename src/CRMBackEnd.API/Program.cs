@@ -53,11 +53,12 @@ builder.Services.AddSwaggerGen(c =>
     // Add Bearer token authentication to Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Bearer token authentication. Enter 'Bearer 123' in the value field below.",
+        Description = "JWT Authorization header using the Bearer scheme. Enter '123' in the text input below (without 'Bearer' prefix).",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement

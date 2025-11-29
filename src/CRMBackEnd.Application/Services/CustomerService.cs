@@ -2,6 +2,7 @@ using AutoMapper;
 using CRMBackEnd.Application.DTOs;
 using CRMBackEnd.Application.Interfaces;
 using CRMBackEnd.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace CRMBackEnd.Application.Services;
 
@@ -12,25 +13,41 @@ public class CustomerService : ICustomerService
 {
     private readonly ICRMServiceClient _crmServiceClient;
     private readonly IMapper _mapper;
+    private readonly ILogger<CustomerService> _logger;
 
-    public CustomerService(ICRMServiceClient crmServiceClient, IMapper mapper)
+    public CustomerService(ICRMServiceClient crmServiceClient, IMapper mapper, ILogger<CustomerService> logger)
     {
         _crmServiceClient = crmServiceClient;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<CustomerInfoResponse> GetCustomerInfoAsync(string id)
     {
+        _logger.LogInformation("Getting customer info for ID: {CustomerId}", id);
+        
         // Convert string ID to int for external API call
         if (!int.TryParse(id, out int customerId))
         {
+            _logger.LogWarning("Invalid customer ID format: {CustomerId}", id);
             throw new ArgumentException($"Invalid customer ID: {id}. ID must be a valid integer.", nameof(id));
         }
 
-        // Call external CRM service
-        var customer = await _crmServiceClient.GetClientDataAsync(customerId);
+        try
+        {
+            // Call external CRM service
+            var customer = await _crmServiceClient.GetClientDataAsync(customerId);
 
-        // Map to response DTO
-        return _mapper.Map<CustomerInfoResponse>(customer);
+            // Map to response DTO
+            var response = _mapper.Map<CustomerInfoResponse>(customer);
+            
+            _logger.LogInformation("Successfully retrieved customer info for ID: {CustomerId}", id);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving customer info for ID: {CustomerId}", id);
+            throw;
+        }
     }
 }
