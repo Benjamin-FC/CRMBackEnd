@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using CRMBackEnd.Domain.Entities;
 using CRMBackEnd.Infrastructure.ExternalServices;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -12,17 +13,19 @@ namespace CRMBackEnd.Tests.Unit.Infrastructure;
 public class CRMServiceClientTests
 {
     private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
+    private readonly Mock<ILogger<CRMServiceClient>> _mockLogger;
     private readonly HttpClient _httpClient;
     private readonly CRMServiceClient _sut;
 
     public CRMServiceClientTests()
     {
         _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        _mockLogger = new Mock<ILogger<CRMServiceClient>>();
         _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
         {
             BaseAddress = new Uri("http://localhost/CRMApi/")
         };
-        _sut = new CRMServiceClient(_httpClient);
+        _sut = new CRMServiceClient(_httpClient, _mockLogger.Object);
     }
 
     [Fact]
@@ -125,8 +128,11 @@ public class CRMServiceClientTests
     [Fact]
     public void Constructor_WithNullHttpClient_ThrowsArgumentNullException()
     {
+        // Arrange
+        var mockLogger = new Mock<ILogger<CRMServiceClient>>();
+        
         // Act
-        Action act = () => new CRMServiceClient(null!);
+        Action act = () => new CRMServiceClient(null!, mockLogger.Object);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()

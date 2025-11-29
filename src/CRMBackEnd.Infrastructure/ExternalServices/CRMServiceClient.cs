@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using CRMBackEnd.Domain.Entities;
 using CRMBackEnd.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace CRMBackEnd.Infrastructure.ExternalServices;
 
@@ -10,35 +11,59 @@ namespace CRMBackEnd.Infrastructure.ExternalServices;
 public class CRMServiceClient : ICRMServiceClient
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<CRMServiceClient> _logger;
 
-    public CRMServiceClient(HttpClient httpClient)
+    public CRMServiceClient(HttpClient httpClient, ILogger<CRMServiceClient> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+      
+
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<Customer> GetClientDataAsync(int id)
     {
+        _logger.LogInformation("Fetching customer data for ID: {CustomerId}", id);
+        
         try
         {
             // Call external CRM API endpoint (no leading slash to preserve base URL path)
-            var response = await _httpClient.GetAsync($"api/v1/ClientData/{id}");
+            var url = $"api/v1/ClientData/{id}";
+            _logger.LogDebug("Calling external CRM API: {Url}", url);
+            
+
+            // Log the Bearer token being used
+            var authHeader = _httpClient.DefaultRequestHeaders.Authorization;
+            _logger.LogDebug("Using Bearer token: {Token}", authHeader?.Parameter ?? "None");
+            
+            var response = await _httpClient.GetAsync(url);
 
             // Ensure success status code
             response.EnsureSuccessStatusCode();
+            
+            _logger.LogDebug("External CRM API returned status: {StatusCode}", response.StatusCode);
 
             // Deserialize response to Customer entity
             var customer = await response.Content.ReadFromJsonAsync<Customer>();
 
             if (customer == null)
             {
+                _logger.LogError("Failed to deserialize customer data for ID: {CustomerId}", id);
                 throw new InvalidOperationException($"Failed to deserialize customer data for ID: {id}");
             }
 
+            _logger.LogInformation("Successfully retrieved customer data for ID: {CustomerId}", id);
             return customer;
         }
         catch (HttpRequestException ex)
         {
+            _logger.LogError(ex, "HTTP error calling external CRM service for customer ID: {CustomerId}", id);
             throw new Exception($"Error calling external CRM service for customer ID {id}: {ex.Message}", ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error retrieving customer data for ID: {CustomerId}", id);
+            throw;
         }
     }
 }

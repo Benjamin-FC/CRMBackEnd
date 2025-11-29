@@ -3,14 +3,32 @@ using CRMBackEnd.API.Middleware;
 using CRMBackEnd.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json")
+        .Build())
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/crmbackend-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
-// Add services to the container
-builder.Services.AddControllers();
+try
+{
+    Log.Information("Starting CRM Backend API");
 
-// Add AutoMapper with explicit assembly registration
-builder.Services.AddAutoMapper(typeof(CRMBackEnd.Application.Mappings.MappingProfile));
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add Serilog
+    builder.Host.UseSerilog();
+
+    // Add services to the container
+    builder.Services.AddControllers();
+
+    // Add AutoMapper with explicit assembly registration
+    builder.Services.AddAutoMapper(typeof(CRMBackEnd.Application.Mappings.MappingProfile));
 
 // Add Infrastructure services (HttpClient, CRM Service, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -79,9 +97,18 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+    app.MapControllers();
 
-app.Run();
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
 // Make the implicit Program class public for integration tests
 public partial class Program { }
