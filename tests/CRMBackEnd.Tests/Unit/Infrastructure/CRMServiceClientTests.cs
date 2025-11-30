@@ -95,7 +95,7 @@ public class CRMServiceClientTests
 
         // Assert
         await act.Should().ThrowAsync<Exception>()
-            .WithMessage($"Error calling external CRM service for customer ID {customerId}*");
+            .WithMessage($"BACKEND: Error calling external CRM service for customer ID {customerId}*");
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class CRMServiceClientTests
 
         // Assert
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage($"Failed to deserialize customer data for ID: {customerId}");
+            .WithMessage($"BACKEND: Failed to deserialize customer data for ID: {customerId}");
     }
 
     [Fact]
