@@ -28,46 +28,46 @@ public class CRMServiceClient : ICRMServiceClient
 
     public async Task<Customer> GetClientDataAsync(int id)
     {
-        _logger.LogInformation("Fetching customer data for ID: {CustomerId}", id);
+        _logger.LogInformation("BACKEND: Fetching customer data for ID: {CustomerId}", id);
         
         try
         {
             // Call external CRM API endpoint (no leading slash to preserve base URL path)
             var url = $"api/v1/ClientData/{id}";
-            _logger.LogDebug("Calling external CRM API: {Url}", url);
+            _logger.LogInformation("BACKEND: Calling external CRM API: {Url}", url);
             
 
             // Log the Bearer token being used
             var authHeader = _httpClient.DefaultRequestHeaders.Authorization;
-            _logger.LogDebug("Using Bearer token: {Token}", authHeader?.Parameter ?? "None");
+            _logger.LogInformation ("BACKEND: Using Bearer token: {Token}", authHeader?.Parameter ?? "None");
             
             var response = await _httpClient.GetAsync(url);
 
             // Ensure success status code
             response.EnsureSuccessStatusCode();
             
-            _logger.LogDebug("External CRM API returned status: {StatusCode}", response.StatusCode);
+            _logger.LogInformation("BACKEND: External CRM API returned status: {StatusCode}", response.StatusCode);
 
             // Deserialize response to Customer entity
             var customer = await response.Content.ReadFromJsonAsync<Customer>();
 
             if (customer == null)
             {
-                _logger.LogError("Failed to deserialize customer data for ID: {CustomerId}", id);
-                throw new InvalidOperationException($"Failed to deserialize customer data for ID: {id}");
+                _logger.LogError("BACKEND: Failed to deserialize customer data for ID: {CustomerId}", id);
+                throw new InvalidOperationException($"BACKEND: Failed to deserialize customer data for ID: {id}");
             }
 
-            _logger.LogInformation("Successfully retrieved customer data for ID: {CustomerId}", id);
+            _logger.LogInformation("BACKEND: Successfully retrieved customer data for ID: {CustomerId}", id);
             return customer;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "HTTP error calling external CRM service for customer ID: {CustomerId}", id);
-            throw new Exception($"Error calling external CRM service for customer ID {id}: {ex.Message}", ex);
+            _logger.LogError(ex, "BACKEND: HTTP error calling external CRM service for customer ID: {CustomerId}", id);
+            throw new Exception($"BACKEND: Error calling external CRM service for customer ID {id}: {ex.Message}", ex);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error retrieving customer data for ID: {CustomerId}", id);
+            _logger.LogError(ex, "BACKEND: Unexpected error retrieving customer data for ID: {CustomerId}", id);
             throw;
         }
     }

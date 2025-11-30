@@ -44,23 +44,22 @@ public class CustomerController : ControllerBase
     {
         try
         {
-            _logger.LogInformation("Getting customer info for ID: {CustomerId}", id);
+            _logger.LogInformation("BACKEND: Getting customer info for ID: {CustomerId}", id);
 
             var result = await _customerService.GetCustomerInfoAsync(id);
 
-            _logger.LogInformation("Successfully retrieved customer info for ID: {CustomerId}", id);
-
+            _logger.LogInformation("BACKEND: Successfully retrieved customer info for ID: {CustomerId}", id);
             return Ok(result);
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, "Invalid customer ID: {CustomerId}", id);
+            _logger.LogWarning(ex, "BACKEND: Invalid customer ID: {CustomerId}", id);
             return BadRequest(new { error = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving customer info for ID: {CustomerId}", id);
-            return StatusCode(500, new { error = "An error occurred while retrieving customer information", details = ex.Message, innerException = ex.InnerException?.Message });
+            _logger.LogError(ex, "BACKEND: Error retrieving customer info for ID: {CustomerId}", id);
+            return StatusCode(500, new { error = "BACKEND: An error occurred while retrieving customer information", details = ex.Message, innerException = ex.InnerException?.Message });
         }
     }
 }

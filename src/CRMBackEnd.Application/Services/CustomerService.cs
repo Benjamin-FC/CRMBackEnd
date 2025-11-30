@@ -24,13 +24,13 @@ public class CustomerService : ICustomerService
 
     public async Task<CustomerInfoResponse> GetCustomerInfoAsync(string id)
     {
-        _logger.LogInformation("Getting customer info for ID: {CustomerId}", id);
+        _logger.LogInformation("BACKEND: Getting customer info for ID: {CustomerId}", id);
         
         // Convert string ID to int for external API call
         if (!int.TryParse(id, out int customerId))
         {
-            _logger.LogWarning("Invalid customer ID format: {CustomerId}", id);
-            throw new ArgumentException($"Invalid customer ID: {id}. ID must be a valid integer.", nameof(id));
+            _logger.LogWarning("BACKEND: Invalid customer ID format: {CustomerId}", id);
+            throw new ArgumentException($" BACKEND: Invalid customer ID: {id}. ID must be a valid integer.", nameof(id));
         }
 
         try
@@ -41,12 +41,12 @@ public class CustomerService : ICustomerService
             // Map to response DTO
             var response = _mapper.Map<CustomerInfoResponse>(customer);
             
-            _logger.LogInformation("Successfully retrieved customer info for ID: {CustomerId}", id);
+            _logger.LogInformation("BACKEND: Successfully retrieved customer info for ID: {CustomerId}", id);
             return response;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving customer info for ID: {CustomerId}", id);
+            _logger.LogError(ex, "BACKEND:  Error retrieving customer info for ID: {CustomerId}", id);
             throw;
         }
     }

@@ -10,9 +10,6 @@ Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
         .Build())
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("logs/crmbackend-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 try
@@ -98,7 +95,10 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-    app.MapControllers();
+// Redirect root to Swagger
+app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
+
+app.MapControllers();
 
     app.Run();
 }
