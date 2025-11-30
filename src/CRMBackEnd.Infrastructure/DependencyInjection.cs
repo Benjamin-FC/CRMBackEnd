@@ -22,16 +22,20 @@ public static class DependencyInjection
         var crmSettings = configuration.GetSection("ExternalCRMService").Get<ExternalCRMServiceSettings>()
             ?? throw new InvalidOperationException("ExternalCRMService configuration is missing");
 
+        // Determine which environment settings to use
+        var useDevelopment = configuration.GetValue<bool>("UseDevelopmentCRM");
+        var activeSettings = useDevelopment ? crmSettings.Development : crmSettings.Production;
+
         services.Configure<ExternalCRMServiceSettings>(
             configuration.GetSection("ExternalCRMService"));
 
         // Register HttpClient with BearerTokenHandler for external CRM service
-        services.AddTransient<BearerTokenHandler>(sp => new BearerTokenHandler(crmSettings.BearerToken));
+        services.AddTransient<BearerTokenHandler>(sp => new BearerTokenHandler(activeSettings.BearerToken));
 
         services.AddHttpClient<ICRMServiceClient, CRMServiceClient>(client =>
         {
-            client.BaseAddress = new Uri(crmSettings.BaseUrl);
-            client.Timeout = TimeSpan.FromSeconds(crmSettings.TimeoutSeconds);
+            client.BaseAddress = new Uri(activeSettings.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(activeSettings.TimeoutSeconds);
         })
         .AddHttpMessageHandler<BearerTokenHandler>();
 
