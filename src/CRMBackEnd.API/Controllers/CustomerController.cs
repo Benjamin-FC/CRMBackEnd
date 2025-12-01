@@ -56,10 +56,25 @@ public class CustomerController : ControllerBase
             _logger.LogWarning(ex, "BACKEND: Invalid customer ID: {CustomerId}", id);
             return BadRequest(new { error = ex.Message });
         }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning("BACKEND: Customer not found for ID: {CustomerId}", id);
+            return NotFound(new { error = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "BACKEND: Authentication failed with external CRM for customer ID: {CustomerId}", id);
+            return StatusCode(502, new { error = "External CRM authentication failed", details = ex.Message });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("External CRM service encountered an error"))
+        {
+            _logger.LogError(ex, "BACKEND: External CRM service error for customer ID: {CustomerId}", id);
+            return StatusCode(502, new { error = "External CRM service is experiencing issues", details = ex.Message });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "BACKEND: Error retrieving customer info for ID: {CustomerId}", id);
-            return StatusCode(500, new { error = "BACKEND: An error occurred while retrieving customer information", details = ex.Message, innerException = ex.InnerException?.Message });
+            return StatusCode(500, new { error = "An error occurred while retrieving customer information", details = ex.Message });
         }
     }
 }

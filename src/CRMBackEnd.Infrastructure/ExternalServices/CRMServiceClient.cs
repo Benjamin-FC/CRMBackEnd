@@ -43,10 +43,33 @@ public class CRMServiceClient : ICRMServiceClient
             
             var response = await _httpClient.GetAsync(url);
 
-            // Ensure success status code
-            response.EnsureSuccessStatusCode();
-            
             _logger.LogInformation("BACKEND: External CRM API returned status: {StatusCode}", response.StatusCode);
+
+            // Handle different status codes
+            if (!response.IsSuccessStatusCode)
+            {
+                var statusCode = (int)response.StatusCode;
+                var errorContent = await response.Content.ReadAsStringAsync();
+                
+                switch (response.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.NotFound:
+                        _logger.LogWarning("BACKEND: Customer not found in external CRM. ID: {CustomerId}", id);
+                        throw new KeyNotFoundException($"Customer with ID {id} not found in external CRM system");
+                    
+                    case System.Net.HttpStatusCode.Unauthorized:
+                        _logger.LogError("BACKEND: Unauthorized access to external CRM for customer ID: {CustomerId}", id);
+                        throw new UnauthorizedAccessException($"Authentication failed when accessing external CRM for customer ID {id}");
+                    
+                    case System.Net.HttpStatusCode.InternalServerError:
+                        _logger.LogError("BACKEND: External CRM service error for customer ID: {CustomerId}. Response: {ErrorContent}", id, errorContent);
+                        throw new InvalidOperationException($"External CRM service encountered an error processing customer ID {id}");
+                    
+                    default:
+                        _logger.LogError("BACKEND: External CRM API error. Status: {StatusCode}, Customer ID: {CustomerId}, Response: {ErrorContent}", statusCode, id, errorContent);
+                        throw new HttpRequestException($"External CRM API returned status code {statusCode} for customer ID {id}");
+                }
+            }
 
             // Deserialize response to Customer entity
             var customer = await response.Content.ReadFromJsonAsync<Customer>();
@@ -63,7 +86,12 @@ public class CRMServiceClient : ICRMServiceClient
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "BACKEND: HTTP error calling external CRM service for customer ID: {CustomerId}", id);
-            throw new Exception($"BACKEND: Error calling external CRM service for customer ID {id}: {ex.Message}", ex);
+            throw new Exception($"BACKEND: Network error calling external CRM service for customer ID {id}: {ex.Message}", ex);
+        }
+        catch (Exception ex) when (ex is KeyNotFoundException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            // Re-throw domain exceptions
+            throw;
         }
         catch (Exception ex)
         {
