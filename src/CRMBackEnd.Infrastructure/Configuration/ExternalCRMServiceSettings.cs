@@ -5,7 +5,7 @@ namespace CRMBackEnd.Infrastructure.Configuration;
 /// </summary>
 public class ExternalCRMServiceSettings
 {
-    public CRMEnvironmentSettings Development { get; set; } = new();
+    public CRMEnvironmentSettings DevelopmentCRM { get; set; } = new();
     public CRMEnvironmentSettings Production { get; set; } = new();
 }
 

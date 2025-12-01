@@ -5,21 +5,16 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
-// Configure Serilog
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(new ConfigurationBuilder()
-        .AddJsonFile("appsettings.json")
-        .Build())
-    .CreateLogger();
+var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog from appsettings.json
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services));
 
 try
 {
     Log.Information("Starting CRM Backend API");
-
-    var builder = WebApplication.CreateBuilder(args);
-
-    // Add Serilog
-    builder.Host.UseSerilog();
 
     // Add services to the container
     builder.Services.AddControllers();
@@ -29,6 +24,9 @@ try
 
 // Add Infrastructure services (HttpClient, CRM Service, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Add CRM Token Service for dynamic token generation
+builder.Services.AddHttpClient<CrmTokenService>();
 
 // Add custom Bearer token authentication
 builder.Services.AddAuthentication("Bearer")

@@ -6,6 +6,7 @@ using CRMBackEnd.Infrastructure.ExternalServices;
 using CRMBackEnd.Infrastructure.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CRMBackEnd.Infrastructure;
 
@@ -24,13 +25,16 @@ public static class DependencyInjection
 
         // Determine which environment settings to use
         var useDevelopment = configuration.GetValue<bool>("UseDevelopmentCRM");
-        var activeSettings = useDevelopment ? crmSettings.Development : crmSettings.Production;
+        var activeSettings = useDevelopment ? crmSettings.DevelopmentCRM : crmSettings.Production;
 
         services.Configure<ExternalCRMServiceSettings>(
             configuration.GetSection("ExternalCRMService"));
 
+        // Store configuration for later use
+        services.AddSingleton(activeSettings);
+
         // Register HttpClient with BearerTokenHandler for external CRM service
-        services.AddTransient<BearerTokenHandler>(sp => new BearerTokenHandler(activeSettings.BearerToken));
+        services.AddTransient<BearerTokenHandler>();
 
         services.AddHttpClient<ICRMServiceClient, CRMServiceClient>(client =>
         {
