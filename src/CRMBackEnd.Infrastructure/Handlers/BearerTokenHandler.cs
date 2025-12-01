@@ -84,7 +84,7 @@ public class BearerTokenHandler : DelegatingHandler
 
         // Add Bearer token to Authorization header
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        _logger.LogDebug("Authorization header set with Bearer token");
+        _logger.LogInformation("Authorization header set with Bearer token");
 
         return await base.SendAsync(request, cancellationToken);
     }

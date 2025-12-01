@@ -70,6 +70,16 @@ public class CustomerService : ICustomerService
             // Re-throw validation exceptions
             throw;
         }
+        catch (KeyNotFoundException)
+        {
+            // Re-throw not found exceptions from CRM service
+            throw;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Re-throw authentication exceptions from CRM service
+            throw;
+        }
         catch (InvalidOperationException)
         {
             // Re-throw operational exceptions

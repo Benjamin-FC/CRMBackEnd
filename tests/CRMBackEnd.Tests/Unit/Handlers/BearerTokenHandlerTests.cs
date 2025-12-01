@@ -244,7 +244,7 @@ public class BearerTokenHandlerTests
         // Assert
         _loggerMock.Verify(
             x => x.Log(
-                LogLevel.Debug,
+                LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("static bearer token")),
                 It.IsAny<Exception>(),

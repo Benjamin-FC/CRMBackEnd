@@ -52,8 +52,8 @@ public class CustomerControllerIntegrationTests : IClassFixture<WebApplicationFa
         var response = await _client.GetAsync("/api/customer/info/12345");
 
         // Assert
-        // Note: This may return 500 if external service is not available
-        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
+        // Note: May return 500/502 if external service unavailable, or 404 if customer not found
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NotFound, HttpStatusCode.InternalServerError, HttpStatusCode.BadGateway);
     }
 
     [Fact]

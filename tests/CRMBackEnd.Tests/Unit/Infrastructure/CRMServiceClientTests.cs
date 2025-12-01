@@ -73,7 +73,7 @@ public class CRMServiceClientTests
     }
 
     [Fact]
-    public async Task GetClientDataAsync_WhenApiReturns404_ThrowsException()
+    public async Task GetClientDataAsync_WhenApiReturns404_ThrowsKeyNotFoundException()
     {
         // Arrange
         var customerId = 99999;
@@ -94,8 +94,8 @@ public class CRMServiceClientTests
         Func<Task> act = async () => await _sut.GetClientDataAsync(customerId);
 
         // Assert
-        await act.Should().ThrowAsync<Exception>()
-            .WithMessage($"BACKEND: Error calling external CRM service for customer ID {customerId}*");
+        await act.Should().ThrowAsync<KeyNotFoundException>()
+            .WithMessage($"Customer with ID {customerId} not found in external CRM system");
     }
 
     [Fact]
@@ -137,5 +137,87 @@ public class CRMServiceClientTests
         // Assert
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("httpClient");
+    }
+
+    [Fact]
+    public async Task GetClientDataAsync_WhenApiReturns401_ThrowsUnauthorizedAccessException()
+    {
+        // Arrange
+        var customerId = 12345;
+        var responseMessage = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.Unauthorized,
+            Content = new StringContent("Unauthorized")
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        Func<Task> act = async () => await _sut.GetClientDataAsync(customerId);
+
+        // Assert
+        await act.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage($"Authentication failed when accessing external CRM for customer ID {customerId}");
+    }
+
+    [Fact]
+    public async Task GetClientDataAsync_WhenApiReturns500_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var customerId = 12345;
+        var responseMessage = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.InternalServerError,
+            Content = new StringContent("Internal Server Error")
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        Func<Task> act = async () => await _sut.GetClientDataAsync(customerId);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage($"External CRM service encountered an error processing customer ID {customerId}");
+    }
+
+    [Fact]
+    public async Task GetClientDataAsync_WhenApiReturnsBadRequest_ThrowsException()
+    {
+        // Arrange
+        var customerId = 12345;
+        var responseMessage = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.BadRequest,
+            Content = new StringContent("Bad Request")
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        Func<Task> act = async () => await _sut.GetClientDataAsync(customerId);
+
+        // Assert
+        var exception = await act.Should().ThrowAsync<Exception>();
+        exception.And.InnerException.Should().BeOfType<HttpRequestException>()
+            .Which.Message.Should().Contain($"External CRM API returned status code 400 for customer ID {customerId}");
     }
 }
