@@ -55,7 +55,7 @@ public class BearerTokenHandler : DelegatingHandler
                     {
                         var task = (Task<string>)method.Invoke(tokenService, null)!;
                         token = await task;
-                        _logger.LogDebug("Using dynamically generated bearer token for external CRM request");
+                        _logger.LogInformation("Using dynamically generated OAuth token for CRM request (token length: {Length})", token?.Length ?? 0);
                     }
                     else
                     {
@@ -79,11 +79,12 @@ public class BearerTokenHandler : DelegatingHandler
         {
             // Development mode: Use static token
             token = _settings.BearerToken;
-            _logger.LogDebug("Using static bearer token for external CRM request");
+            _logger.LogInformation("Using static bearer token for CRM request (development mode)");
         }
 
         // Add Bearer token to Authorization header
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        _logger.LogDebug("Authorization header set with Bearer token");
 
         return await base.SendAsync(request, cancellationToken);
     }
