@@ -34,10 +34,14 @@ public class CrmTokenService
 
         _logger.LogInformation("Requesting new CRM authentication token");
         
-        var tokenUrl = _configuration["CrmAuthentication:TokenUrl"] ?? "https://fcapppcliamapidev01.azurewebsites.net/connect/token";
-        var clientId = _configuration["CrmAuthentication:ClientId"] ?? "ApiClientPasswordFlow";
-        var clientSecret = _configuration["CrmAuthentication:ClientSecret"] ?? "ApiClientPasswordFlowSecret";
-        var scope = _configuration["CrmAuthentication:Scope"] ?? "FcPayrollApi";
+        var tokenUrl = _configuration["CrmAuthentication:TokenUrl"] 
+            ?? throw new InvalidOperationException("CrmAuthentication:TokenUrl configuration is missing");
+        var clientId = _configuration["CrmAuthentication:ClientId"] 
+            ?? throw new InvalidOperationException("CrmAuthentication:ClientId configuration is missing");
+        var clientSecret = _configuration["CrmAuthentication:ClientSecret"] 
+            ?? throw new InvalidOperationException("CrmAuthentication:ClientSecret configuration is missing");
+        var scope = _configuration["CrmAuthentication:Scope"] 
+            ?? throw new InvalidOperationException("CrmAuthentication:Scope configuration is missing");
         var username = Environment.GetEnvironmentVariable("CRM_USERNAME") 
             ?? throw new InvalidOperationException("CRM_USERNAME environment variable is not set");
         var password = Environment.GetEnvironmentVariable("CRM_PASSWORD") 
