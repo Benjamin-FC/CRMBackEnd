@@ -34,14 +34,14 @@ public class CrmTokenService
 
         _logger.LogInformation("Requesting new CRM authentication token");
         
-        var tokenUrl = _configuration["CrmAuthentication:TokenUrl"] 
-            ?? throw new InvalidOperationException("CrmAuthentication:TokenUrl configuration is missing");
-        var clientId = _configuration["CrmAuthentication:ClientId"] 
-            ?? throw new InvalidOperationException("CrmAuthentication:ClientId configuration is missing");
-        var clientSecret = _configuration["CrmAuthentication:ClientSecret"] 
-            ?? throw new InvalidOperationException("CrmAuthentication:ClientSecret configuration is missing");
-        var scope = _configuration["CrmAuthentication:Scope"] 
-            ?? throw new InvalidOperationException("CrmAuthentication:Scope configuration is missing");
+        var tokenUrl = Environment.GetEnvironmentVariable("CRM_TOKEN_URL") 
+            ?? throw new InvalidOperationException("CRM_TOKEN_URL environment variable is not set");
+        var clientId = Environment.GetEnvironmentVariable("CRM_CLIENT_ID") 
+            ?? throw new InvalidOperationException("CRM_CLIENT_ID environment variable is not set");
+        var clientSecret = Environment.GetEnvironmentVariable("CRM_CLIENT_SECRET") 
+            ?? throw new InvalidOperationException("CRM_CLIENT_SECRET environment variable is not set");
+        var scope = Environment.GetEnvironmentVariable("CRM_SCOPE") 
+            ?? throw new InvalidOperationException("CRM_SCOPE environment variable is not set");
         var username = Environment.GetEnvironmentVariable("CRM_USERNAME") 
             ?? throw new InvalidOperationException("CRM_USERNAME environment variable is not set");
         var password = Environment.GetEnvironmentVariable("CRM_PASSWORD") 

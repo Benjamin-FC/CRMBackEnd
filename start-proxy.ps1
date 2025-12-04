@@ -26,32 +26,37 @@ Write-Host "Swagger: http://localhost:5018/swagger" -ForegroundColor Cyan
 Write-Host "Mode: Proxying to External CRM API" -ForegroundColor Magenta
 Write-Host ""
 
-# Check for CRM username and password
-if (-not $env:CRM_USERNAME) {
-    Write-Host "WARNING: CRM_USERNAME environment variable is not set!" -ForegroundColor Red
-    Write-Host "Set it with: `$env:CRM_USERNAME = 'your-username'" -ForegroundColor Yellow
+# Validate all required environment variables
+$missingVars = @()
+
+if (-not $env:CRM_USERNAME) { $missingVars += "CRM_USERNAME" }
+if (-not $env:CRM_PASSWORD) { $missingVars += "CRM_PASSWORD" }
+if (-not $env:CRM_CLIENT_ID) { $missingVars += "CRM_CLIENT_ID" }
+if (-not $env:CRM_CLIENT_SECRET) { $missingVars += "CRM_CLIENT_SECRET" }
+if (-not $env:CRM_TOKEN_URL) { $missingVars += "CRM_TOKEN_URL" }
+if (-not $env:CRM_SCOPE) { $missingVars += "CRM_SCOPE" }
+
+if ($missingVars.Count -gt 0) {
+    Write-Host "ERROR: Required environment variables are missing!" -ForegroundColor Red
     Write-Host ""
-    $response = Read-Host "Continue without credentials? (y/N)"
-    if ($response -ne 'y' -and $response -ne 'Y') {
-        Write-Host "Aborted." -ForegroundColor Red
-        exit 1
+    Write-Host "Missing variables:" -ForegroundColor Yellow
+    foreach ($var in $missingVars) {
+        Write-Host "  - $var" -ForegroundColor Red
     }
-} else {
-    Write-Host "Using CRM username from environment variable" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Run the credential setup script first:" -ForegroundColor Cyan
+    Write-Host "  .\set-crm-credentials.ps1" -ForegroundColor White
+    Write-Host ""
+    exit 1
 }
 
-if (-not $env:CRM_PASSWORD) {
-    Write-Host "WARNING: CRM_PASSWORD environment variable is not set!" -ForegroundColor Red
-    Write-Host "Set it with: `$env:CRM_PASSWORD = 'your-password'" -ForegroundColor Yellow
-    Write-Host ""
-    $response = Read-Host "Continue without credentials? (y/N)"
-    if ($response -ne 'y' -and $response -ne 'Y') {
-        Write-Host "Aborted." -ForegroundColor Red
-        exit 1
-    }
-} else {
-    Write-Host "Using CRM password from environment variable" -ForegroundColor Green
-}
+Write-Host "All required environment variables are set:" -ForegroundColor Green
+Write-Host "  √ CRM_USERNAME" -ForegroundColor Green
+Write-Host "  √ CRM_PASSWORD" -ForegroundColor Green
+Write-Host "  √ CRM_CLIENT_ID" -ForegroundColor Green
+Write-Host "  √ CRM_CLIENT_SECRET" -ForegroundColor Green
+Write-Host "  √ CRM_TOKEN_URL" -ForegroundColor Green
+Write-Host "  √ CRM_SCOPE" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "Press Ctrl+C to stop the API" -ForegroundColor Yellow

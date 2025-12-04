@@ -140,3 +140,6 @@ _pkginfo.txt
 !*.[Cc]ache/
 
 logs/
+
+# Credentials
+set-crm-credentials.ps1
