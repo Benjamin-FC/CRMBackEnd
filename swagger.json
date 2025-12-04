@@ -1,0 +1,172 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "CRM Backend API",
+    "version": "v1",
+    "description": "Clean Architecture CRM Backend API wrapping external CRM service"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5018/CRMBackend",
+      "description": "Development server"
+    },
+    {
+      "url": "https://localhost:7255/CRMBackend",
+      "description": "HTTPS Development server"
+    }
+  ],
+  "paths": {
+    "/api/Customer/info/{id}": {
+      "get": {
+        "tags": ["Customer"],
+        "summary": "Get customer information by ID",
+        "description": "Retrieves customer information for the specified customer ID",
+        "operationId": "GetCustomerInfo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Customer ID (string)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns customer information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerInfoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid customer ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Customer not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway - External CRM service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT Authorization header using the Bearer scheme. Enter '123' in the text input below (without 'Bearer' prefix)."
+      }
+    },
+    "schemas": {
+      "CustomerInfoResponse": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "description": "Client ID"
+          },
+          "editApproval": {
+            "type": "string",
+            "description": "Edit approval status"
+          },
+          "dba": {
+            "type": "string",
+            "description": "Doing Business As"
+          },
+          "clientLegalName": {
+            "type": "string",
+            "description": "Client legal name"
+          },
+          "complianceHold": {
+            "type": "string",
+            "description": "Compliance hold status"
+          },
+          "level": {
+            "type": "string",
+            "description": "Customer level"
+          },
+          "paymentTermID": {
+            "type": "string",
+            "description": "Payment term ID"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "Payment method"
+          },
+          "status": {
+            "type": "string",
+            "description": "Customer status"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "details": {
+            "type": "string",
+            "description": "Additional error details (optional)"
+          }
+        }
+      }
+    }
+  }
+}
